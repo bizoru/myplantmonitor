@@ -7,6 +7,11 @@ Built using research on IoT, MQTT, and cloud infrastructure.
 
 *[Leer en español](README.es.md)*
 
+## Live Demo
+
+- **Grafana Dashboard** (real-time sensor data): [https://miplanta.app/](https://miplanta.app/)
+- **3D Simulator** (interactive plant control): [https://miplanta.app/sim/](https://miplanta.app/sim/)
+
 ## Architecture
 
 ![System Architecture](docs/architecture.png)

@@ -7,6 +7,11 @@ Construido con base en investigación sobre IoT, MQTT e infraestructura en la nu
 
 *[Read in English](README.md)*
 
+## Demo en vivo
+
+- **Dashboard de Grafana** (datos de sensores en tiempo real): [https://miplanta.app/](https://miplanta.app/)
+- **Simulador 3D** (control interactivo de la planta): [https://miplanta.app/sim/](https://miplanta.app/sim/)
+
 ## Arquitectura
 
 ![Arquitectura del sistema](docs/architecture.png)
