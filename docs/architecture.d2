@@ -1,0 +1,136 @@
+direction: right
+
+vars: {
+  d2-config: {
+    theme-id: 200
+    dark-theme-id: 200
+    pad: 40
+  }
+}
+
+classes: {
+  edge: {
+    style: {
+      stroke: "#4A90D9"
+      stroke-width: 2
+      font-color: "#A0AEC0"
+      font-size: 12
+    }
+  }
+  device: {
+    shape: rectangle
+    style: {
+      fill: "#0D1117"
+      stroke: "#30363D"
+      stroke-width: 2
+      border-radius: 8
+      font-color: "#E6EDF3"
+      font-size: 14
+      bold: true
+    }
+  }
+  service: {
+    shape: rectangle
+    style: {
+      fill: "#161B22"
+      stroke: "#1F6FEB"
+      stroke-width: 2
+      border-radius: 8
+      font-color: "#E6EDF3"
+      font-size: 14
+      bold: true
+    }
+  }
+  gateway: {
+    shape: rectangle
+    style: {
+      fill: "#161B22"
+      stroke: "#3FB950"
+      stroke-width: 2
+      border-radius: 8
+      font-color: "#E6EDF3"
+      font-size: 14
+      bold: true
+    }
+  }
+}
+
+title: {
+  label: "MYPLANTMONITOR — SYSTEM ARCHITECTURE"
+  shape: text
+  style: {
+    font-size: 22
+    font-color: "#E6EDF3"
+    bold: true
+  }
+}
+
+# --- EDGE DEVICES ---
+
+arduino: "ARDUINO UNO\nplant-01\nDHT22 + Soil Sensor + LED Strip" {
+  class: device
+}
+
+sim_cli: "SIMULATOR CLI\nsim-cli (Python)" {
+  class: device
+}
+
+sim_web: "3D SIMULATOR\nsim-web (React + Three.js)" {
+  class: device
+}
+
+# --- CLOUD STACK (AWS EC2) ---
+
+mosquitto: "MOSQUITTO\nMQTT Broker\nPort 1883 / WSS 9001" {
+  class: service
+}
+
+nodered: "NODE-RED\nFlow Engine\nRouting + Processing" {
+  class: service
+}
+
+influxdb: "INFLUXDB\nTime-Series DB\n30-day retention" {
+  class: service
+}
+
+grafana: "GRAFANA\nReal-time Dashboards\nPublic read-only" {
+  class: service
+}
+
+caddy: "CADDY\nReverse Proxy\nAuto TLS — Let's Encrypt" {
+  class: gateway
+}
+
+public: "PUBLIC INTERNET\nhttps://miplanta.app" {
+  style: {
+    fill: transparent
+    stroke: "#3FB950"
+    stroke-width: 2
+    stroke-dash: 5
+    border-radius: 8
+    font-color: "#3FB950"
+    font-size: 14
+    bold: true
+  }
+}
+
+# --- TELEMETRY FLOW ---
+
+arduino -> mosquitto: "MQTT :1883" { class: edge }
+sim_cli -> mosquitto: "MQTT :1883" { class: edge }
+sim_web -> mosquitto: "WSS :9001" { class: edge }
+mosquitto -> nodered: "subscribe" { class: edge }
+nodered -> influxdb: "write API" { class: edge }
+influxdb -> grafana: "Flux query" { class: edge }
+grafana -> caddy: "HTTP" { class: edge }
+caddy -> public: "HTTPS :443" { class: edge }
+
+# --- COMMAND FLOW (reverse) ---
+
+mosquitto -> arduino: "cmd/plant-01/light" {
+  class: edge
+  style: {
+    stroke: "#F0883E"
+    stroke-dash: 5
+  }
+}

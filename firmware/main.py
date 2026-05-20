@@ -1,4 +1,4 @@
-"""main.py — myplantmonitor ESP32 firmware (plant-01).
+"""main.py — myplantmonitor Arduino UNO firmware (plant-01).
 
 Loop:
   - read DHT22 (temperature + humidity)
@@ -49,7 +49,7 @@ def read_sensors() -> dict:
 
 
 def _iso_now() -> str:
-    # ESP32 RTC may not be NTP-synced; this is "best effort". Node-RED can
+    # Arduino UNO RTC may not be NTP-synced; this is "best effort". Node-RED can
     # overwrite with server time if needed.
     t = time.localtime()
     return "{:04d}-{:02d}-{:02d}T{:02d}:{:02d}:{:02d}Z".format(

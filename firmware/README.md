@@ -1,4 +1,4 @@
-# firmware — plant-01 (ESP32, MicroPython)
+# firmware — plant-01 (Arduino UNO, Arduino C/C++)
 
 ## Hardware (suggested wiring — adjust to your build)
 
@@ -8,17 +8,17 @@
 | Soil moisture (ADC)   | GPIO34 | ADC1 channel; capacitive sensors preferred |
 | Light strip / relay   | GPIO5  | drives MOSFET gate or relay coil          |
 
-3V3 + GND from the ESP32 dev board. Soil sensor signal pin → GPIO34.
+3V3 + GND from the Arduino UNO dev board. Soil sensor signal pin → GPIO34.
 
-## Flash MicroPython
+## Flash Arduino C/C++
 
-1. Download MicroPython for ESP32 from <https://micropython.org/download/esp32/>.
+1. Download the Arduino IDE from <https://www.arduino.cc/en/software>.
 2. Erase + flash:
 
    ```bash
-   esptool.py --chip esp32 --port /dev/cu.usbserial-XXXX erase_flash
-   esptool.py --chip esp32 --port /dev/cu.usbserial-XXXX --baud 460800 \
-     write_flash -z 0x1000 esp32-XXXX.bin
+   esptool.py --chip arduino --port /dev/cu.usbserial-XXXX erase_flash
+   esptool.py --chip arduino --port /dev/cu.usbserial-XXXX --baud 460800 \
+     write_flash -z 0x1000 arduino-XXXX.bin
    ```
 
 3. Verify with `mpremote`:

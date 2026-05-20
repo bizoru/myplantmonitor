@@ -6,7 +6,7 @@ A pragmatic, hobby-grade IoT stack. One ARM EC2, docker compose, MQTT spine.
 
 | Layer            | Tool          | Why                                                    |
 | ---------------- | ------------- | ------------------------------------------------------ |
-| Sensor edge      | ESP32 µPython | Cheap, runs on 5V USB, MicroPython is hackable.        |
+| Sensor edge      | Arduino UNO   | Cheap, runs on 5V USB, Arduino C/C++ is hackable.        |
 | Sim (headless)   | Python paho   | Easy to script, useful in CI / demos without hardware. |
 | Sim (visual)     | r3f + leva    | 3D plant for the demo; teacher-friendly.               |
 | Transport        | Mosquitto 2.0 | Tiny, well-known, websockets for the browser sim.      |

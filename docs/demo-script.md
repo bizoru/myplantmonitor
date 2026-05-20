@@ -73,12 +73,12 @@ podemos mandarle órdenes a la planta. Voy a encender la luz LED."**
 virtual se encendió. Si esto estuviera conectado a una planta real, la luz
 real se prendería."**
 
-## Paso 6 — (Opcional, si el ESP32 está listo) (20 segundos)
+## Paso 6 — (Opcional, si el Arduino UNO está listo) (20 segundos)
 
-> Si hay tiempo y el ESP32 funciona, mostrar la maceta real.
+> Si hay tiempo y el Arduino UNO funciona, mostrar la maceta real.
 
 **"Y esto mismo pasa con la planta real, que tiene un microcontrolador
-ESP32 leyendo sensores de humedad de suelo y temperatura. El sistema no
+Arduino UNO leyendo sensores de humedad de suelo y temperatura. El sistema no
 distingue si los datos vienen del simulador o de la planta de verdad —
 para él son lo mismo."**
 
@@ -99,7 +99,7 @@ que me avise cuando la tierra esté muy seca) y conectar la planta real."**
 **"MQTT está hecho para dispositivos pequeños como sensores: usa muy poca
 batería, muy poco ancho de banda, y permite que muchos aparatos hablen al
 mismo tiempo sin saber unos de otros. Una API REST funcionaría, pero
-gastaría más recursos del ESP32 y sería más complicada para mandar
+gastaría más recursos del Arduino UNO y sería más complicada para mandar
 órdenes en tiempo real."**
 
 ### 2. "¿Qué pasa si alguien se conecta y manda datos falsos?"

@@ -1,7 +1,7 @@
 # simulator-web
 
 Vite + React + react-three-fiber + leva + mqtt.js. A 3D plant in the browser
-that talks to the same MQTT broker as the real ESP32 (`device_id=sim-web`).
+that talks to the same MQTT broker as the real Arduino UNO (`device_id=sim-web`).
 
 ## Dev
 
