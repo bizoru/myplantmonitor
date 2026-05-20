@@ -67,6 +67,25 @@ docs/             Architecture diagrams and documentation
 - [`docs/architecture.md`](docs/architecture.md) — full technical architecture
 - [`docs/demo-script.md`](docs/demo-script.md) — presentation script (Spanish)
 
+## Glossary
+
+| Term             | Definition                                                                 |
+| ---------------- | -------------------------------------------------------------------------- |
+| **IoT**          | Internet of Things — physical objects connected to the internet            |
+| **MQTT**         | Lightweight messaging protocol designed for sensors and small devices      |
+| **Broker**       | Server that receives and distributes MQTT messages (Mosquitto)             |
+| **Topic**        | The channel/address of an MQTT message, e.g. `sensors/plant-01/state`     |
+| **Node-RED**     | Visual programming tool for connecting sensors to databases and services   |
+| **InfluxDB**     | Database optimized for time-series data (measurements over time)           |
+| **Grafana**      | Visualization platform for building real-time dashboards                   |
+| **Arduino UNO**  | Microcontroller board that reads sensors and sends data over the network   |
+| **DHT22**        | Sensor that measures temperature and air humidity                          |
+| **Docker**       | System that packages applications into containers for consistent deployment|
+| **Caddy**        | Web server with automatic HTTPS via Let's Encrypt                          |
+| **AWS EC2**      | Amazon cloud computing service — virtual servers on demand                 |
+| **WebSocket**    | Bidirectional real-time internet connection used by the browser simulator  |
+| **Terraform**    | Infrastructure as Code tool for provisioning cloud resources               |
+
 ## License
 
 [MIT](LICENSE) — Copyright (c) 2026 Abby Sierra Cubillos
