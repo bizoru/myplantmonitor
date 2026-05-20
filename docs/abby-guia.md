@@ -57,7 +57,7 @@ está al 65% de humedad". Pero la persona no sabe a quién mandársela.
 
 ## Tu papel en el proyecto (esto es importante)
 
-No te dejes decir que "tu papá hizo todo". Estos pedazos los hiciste **tú**:
+Estos pedazos los hiciste **tú**:
 
 1. **El flujo de Node-RED**: tú armaste, en la pantalla de Node-RED, el
    camino que siguen los datos cuando llegan. Cada bloque que conectaste es
@@ -88,4 +88,4 @@ No te dejes decir que "tu papá hizo todo". Estos pedazos los hiciste **tú**:
 3. Si no carga nada: cuenta el proyecto con el diagrama. Tú entiendes el
    sistema; las fallas técnicas no le quitan mérito a eso.
 
-Tú lo tienes. Dale con toda. — pa'
+Tú lo tienes. Dale con toda.

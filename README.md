@@ -3,9 +3,8 @@
 A small IoT plant monitoring stack: ESP32 (or simulator) → MQTT → Node-RED →
 InfluxDB → Grafana, fronted by Caddy with auto TLS. Runs on a single ARM EC2.
 
-This repo is also a school project for **Abby** (11th grade, Bogotá). Most of
-the wiring is mine; she owns the Node-RED flow, the dashboard look, and the
-plant choice. Demo deadline: **2026-05-12**, presentation in Spanish.
+A school project by **Abby Sierra Cubillos** (11th grade, Gimnasio Fontana, Bogotá).
+Built using research on IoT, MQTT, and cloud infrastructure.
 
 ## Architecture
 

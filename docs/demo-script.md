@@ -8,7 +8,7 @@ Para Abby. Léelo en voz alta dos o tres veces antes del lunes. Las frases en
 - Tener dos pestañas abiertas:
   1. `https://miplanta.app/` (Grafana — tablero)
   2. `https://miplanta.app/sim` (Simulador 3D)
-- Tener el simulador-cli corriendo en el portátil (papá lo arranca) para
+- Tener el simulador-cli corriendo en el portátil para
   que el tablero ya tenga datos cuando lo abras.
 - Volumen del computador en silencio (no queremos sustos con sonidos).
 

@@ -6,7 +6,7 @@ Hola Abby! Este archivo explica **qué hace el proyecto, cómo funciona y cómo 
 
 ## ¿Qué es este proyecto?
 
-Creamos un sistema completo de monitoreo para una planta usando tecnología real de Internet de las Cosas (IoT — *Internet of Things*). La planta tiene sensores que miden temperatura, humedad del aire y humedad de la tierra. Esos datos viajan por internet hasta una pantalla en tiempo real.
+Este es un sistema completo de monitoreo para una planta usando tecnología real de Internet de las Cosas (IoT — *Internet of Things*). La planta tiene sensores que miden temperatura, humedad del aire y humedad de la tierra. Esos datos viajan por internet hasta una pantalla en tiempo real.
 
 ---
 
@@ -21,7 +21,7 @@ Es un microcontrolador pequeño conectado a la planta. Tiene:
 Cada 60 segundos el ESP32 *publica* los datos al internet, como si enviara una cartita.
 
 ### 2. La nube (servidor en Amazon AWS)
-Tu papá configuró un servidor en la nube que recibe las cartitas y las guarda. Tiene varios programas trabajando juntos:
+El servidor en la nube recibe las cartitas y las guarda. Tiene varios programas trabajando juntos:
 
 | Programa | ¿Qué hace? |
 |---|---|
@@ -32,7 +32,7 @@ Tu papá configuró un servidor en la nube que recibe las cartitas y las guarda.
 | **Caddy** | El "portero" — protege todo con HTTPS y dirige el tráfico |
 
 ### 3. El simulador 3D (para la demo)
-Como el ESP32 puede no estar presente en la presentación, creamos un simulador que muestra la planta en **3D** con la misma interfaz de control. Se ve como el centro de control de la NASA. 😄
+Como el ESP32 puede no estar presente en la presentación, hay un simulador que muestra la planta en **3D** con la misma interfaz de control. Se ve como el centro de control de la NASA. 😄
 
 ---
 
@@ -126,8 +126,8 @@ El ESP32 confirma que recibió la orden publicando el nuevo estado en `state/pla
 1. **Si el internet no funciona:** el simulador guarda los últimos valores en la pantalla — muestra la interfaz sin conexión y explica el concepto con los sliders
 2. **Si Grafana no carga:** muestra capturas de pantalla guardadas en el celular
 3. **Si el servidor está caído:** usa las capturas + el video de demostración que hiciste antes
-4. **Si preguntan algo que no sabes:** "Eso lo diseñó mi papá — yo me encargué de los flujos en Node-RED y de entender cómo funciona el protocolo MQTT"
+4. **Si preguntan algo que no sabes:** "Esa parte la investigué pero todavía me falta profundizar — me encargué de los flujos en Node-RED y de entender cómo funciona el protocolo MQTT"
 
 ---
 
-*Hecho con ❤️ por papá. ¡Tú puedes, Abby! 🌿*
+*Proyecto de Abby Sierra Cubillos — Gimnasio Fontana 🌿*
