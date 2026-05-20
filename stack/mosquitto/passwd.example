@@ -1,0 +1,15 @@
+# This file is an EXAMPLE only. The real `passwd` is generated on the box,
+# not committed to git (see ../../.gitignore — entry: stack/mosquitto/passwd).
+#
+# Format (one user per line):
+#   <username>:<hash>
+#
+# Generate the real file with mosquitto_passwd inside the running container:
+#
+#   docker exec -it mosquitto mosquitto_passwd -c -b /mosquitto/config/passwd \
+#     "$MQTT_USER" "$MQTT_PASSWORD"
+#
+# Or use the helper script: bash setup.sh
+#
+# Example (DO NOT use this hash — it's just to show the shape):
+# plant:$7$101$abcd...$xyz...

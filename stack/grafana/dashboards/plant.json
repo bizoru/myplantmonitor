@@ -1,0 +1,213 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "uid": "myplantmonitor-main",
+  "title": "🌱 Mi Planta — Monitor en Vivo",
+  "tags": ["myplantmonitor", "iot", "abby"],
+  "timezone": "America/Bogota",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "time": { "from": "now-1h", "to": "now" },
+  "templating": {
+    "list": [
+      {
+        "name": "device_id",
+        "label": "Dispositivo",
+        "type": "custom",
+        "current": { "text": "sim-cli", "value": "sim-cli" },
+        "options": [
+          { "text": "plant-01", "value": "plant-01", "selected": false },
+          { "text": "sim-cli", "value": "sim-cli", "selected": true },
+          { "text": "sim-web", "value": "sim-web", "selected": false }
+        ],
+        "query": "plant-01,sim-cli,sim-web",
+        "includeAll": false,
+        "multi": false
+      },
+      {
+        "name": "BUCKET",
+        "label": "Bucket (constante)",
+        "type": "constant",
+        "current": { "text": "sensors", "value": "sensors" },
+        "query": "sensors",
+        "hide": 2
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "stat",
+      "title": "🌡️ Temperatura actual",
+      "id": 1,
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+      "datasource": { "type": "influxdb", "uid": "InfluxDB" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "celsius",
+          "decimals": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "blue", "value": null },
+              { "color": "green", "value": 18 },
+              { "color": "orange", "value": 28 },
+              { "color": "red", "value": 35 }
+            ]
+          }
+        }
+      },
+      "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "from(bucket: \"${BUCKET}\")\n  |> range(start: -10m)\n  |> filter(fn: (r) => r._measurement == \"sensors\" and r.device_id == \"${device_id}\" and r._field == \"temperature\")\n  |> last()"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "💧 Humedad actual",
+      "id": 2,
+      "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+      "datasource": { "type": "influxdb", "uid": "InfluxDB" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "orange", "value": 30 },
+              { "color": "green", "value": 50 }
+            ]
+          }
+        }
+      },
+      "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "from(bucket: \"${BUCKET}\")\n  |> range(start: -10m)\n  |> filter(fn: (r) => r._measurement == \"sensors\" and r.device_id == \"${device_id}\" and r._field == \"humidity\")\n  |> last()"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "🌱 Humedad de suelo",
+      "id": 3,
+      "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+      "datasource": { "type": "influxdb", "uid": "InfluxDB" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "orange", "value": 30 },
+              { "color": "green", "value": 55 }
+            ]
+          }
+        }
+      },
+      "options": { "colorMode": "value", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "from(bucket: \"${BUCKET}\")\n  |> range(start: -10m)\n  |> filter(fn: (r) => r._measurement == \"sensors\" and r.device_id == \"${device_id}\" and r._field == \"soil_moisture\")\n  |> last()"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "💡 Estado de la luz",
+      "id": 4,
+      "gridPos": { "x": 18, "y": 0, "w": 6, "h": 4 },
+      "datasource": { "type": "influxdb", "uid": "InfluxDB" },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "type": "value", "options": { "0": { "text": "🌑 Apagada", "color": "blue" }, "1": { "text": "💡 Encendida", "color": "yellow" } } }
+          ]
+        }
+      },
+      "options": { "colorMode": "background", "reduceOptions": { "calcs": ["lastNotNull"] } },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "from(bucket: \"${BUCKET}\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r._measurement == \"light_state\" and r.device_id == \"${device_id}\" and r._field == \"on\")\n  |> last()"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "🌡️ Temperatura (°C) — última hora",
+      "id": 5,
+      "gridPos": { "x": 0, "y": 4, "w": 12, "h": 8 },
+      "datasource": { "type": "influxdb", "uid": "InfluxDB" },
+      "fieldConfig": { "defaults": { "unit": "celsius", "custom": { "fillOpacity": 15, "lineWidth": 2 } } },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "from(bucket: \"${BUCKET}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"sensors\" and r.device_id == \"${device_id}\" and r._field == \"temperature\")\n  |> aggregateWindow(every: 1m, fn: mean, createEmpty: false)"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "💧 Humedad del aire (%)",
+      "id": 6,
+      "gridPos": { "x": 12, "y": 4, "w": 12, "h": 8 },
+      "datasource": { "type": "influxdb", "uid": "InfluxDB" },
+      "fieldConfig": { "defaults": { "unit": "percent", "min": 0, "max": 100, "custom": { "fillOpacity": 15, "lineWidth": 2 } } },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "from(bucket: \"${BUCKET}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"sensors\" and r.device_id == \"${device_id}\" and r._field == \"humidity\")\n  |> aggregateWindow(every: 1m, fn: mean, createEmpty: false)"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "🌱 Humedad de suelo (%)",
+      "id": 7,
+      "gridPos": { "x": 0, "y": 12, "w": 18, "h": 8 },
+      "datasource": { "type": "influxdb", "uid": "InfluxDB" },
+      "fieldConfig": { "defaults": { "unit": "percent", "min": 0, "max": 100, "custom": { "fillOpacity": 25, "lineWidth": 2 } } },
+      "targets": [
+        {
+          "refId": "A",
+          "query": "from(bucket: \"${BUCKET}\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"sensors\" and r.device_id == \"${device_id}\" and r._field == \"soil_moisture\")\n  |> aggregateWindow(every: 1m, fn: mean, createEmpty: false)"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "title": "💡 Control de luz",
+      "id": 8,
+      "gridPos": { "x": 18, "y": 12, "w": 6, "h": 8 },
+      "options": {
+        "mode": "html",
+        "content": "<div style=\"text-align:center;padding:1.5em\"><p style=\"font-size:1.1em\">El control de la luz vive en el dashboard de Node-RED.</p><p><a href=\"/nodered/ui\" target=\"_blank\" style=\"display:inline-block;background:#f1c40f;color:#000;padding:0.8em 1.6em;border-radius:6px;font-weight:bold;text-decoration:none\">Abrir control de luz →</a></p><p style=\"font-size:0.85em;color:#888\">(El botón publica a <code>cmd/${device_id}/light</code>.)</p></div>"
+      }
+    }
+  ]
+}

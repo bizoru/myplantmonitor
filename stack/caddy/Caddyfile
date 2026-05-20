@@ -1,0 +1,43 @@
+# myplantmonitor — Caddyfile.
+#
+# Caddy fronts everything: TLS termination, ACME, and path-based routing into
+# the docker-compose internal network. ${DOMAIN} and ${LE_EMAIL} come from .env.
+
+{
+  # Global options.
+  email {$LE_EMAIL}
+}
+
+{$DOMAIN} {
+  encode gzip
+
+  # MQTT over WebSocket — Mosquitto's :9001 listener.
+  # Browser simulator connects to wss://${DOMAIN}/mqtt
+  handle_path /mqtt* {
+    reverse_proxy mosquitto:9001
+  }
+
+  # Node-RED editor + dashboard. Auth handled by Node-RED's own adminAuth.
+  handle_path /nodered* {
+    reverse_proxy nodered:1880
+  }
+
+  # Node-RED's dashboard sends a bare /ui/ redirect (it doesn't know its path
+  # prefix). Catch it here and bounce the browser back under /nodered/.
+  handle /ui* {
+    redir * /nodered{uri} 302
+  }
+
+  # 3D simulator SPA — static files served from the `sim_dist` named volume.
+  # `make deploy` rsyncs the built dist/ into that volume.
+  handle_path /sim* {
+    root * /srv/sim
+    try_files {path} /index.html
+    file_server
+  }
+
+  # Default catch-all → Grafana root.
+  handle {
+    reverse_proxy grafana:3000
+  }
+}

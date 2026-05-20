@@ -1,0 +1,4 @@
+domain           = "miplanta.app"
+instance_type    = "t4g.small"
+allowed_ssh_cidr = "x.x.x.x/32" # change to your IP — `curl ifconfig.me`
+# key_name       = "steven-laptop" # optional, only if you want SSH fallback

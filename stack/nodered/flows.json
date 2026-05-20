@@ -1,0 +1,173 @@
+[
+    {
+        "id": "myplantmonitor-tab",
+        "type": "tab",
+        "label": "myplantmonitor",
+        "disabled": false,
+        "info": "Sensors → InfluxDB and dashboard → cmd/<id>/light. Abby owns this tab — open it in the editor and tweak."
+    },
+    {
+        "id": "mosquitto-broker",
+        "type": "mqtt-broker",
+        "name": "mosquitto",
+        "broker": "mosquitto",
+        "port": "1883",
+        "clientid": "nodered",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true
+    },
+    {
+        "id": "influx-config",
+        "type": "influxdb",
+        "hostname": "influxdb",
+        "port": "8086",
+        "protocol": "http",
+        "database": "",
+        "name": "influxdb",
+        "usetls": false,
+        "influxdbVersion": "2.0",
+        "url": "http://influxdb:8086",
+        "rejectUnauthorized": true
+    },
+    {
+        "id": "in-sensors",
+        "type": "mqtt in",
+        "z": "myplantmonitor-tab",
+        "name": "sensors/+/state",
+        "topic": "sensors/+/state",
+        "qos": "0",
+        "datatype": "json",
+        "broker": "mosquitto-broker",
+        "x": 140, "y": 100,
+        "wires": [["fn-tag-device"]]
+    },
+    {
+        "id": "fn-tag-device",
+        "type": "function",
+        "z": "myplantmonitor-tab",
+        "name": "tag device_id from topic",
+        "func": "// topic looks like sensors/<id>/state\nconst parts = msg.topic.split('/');\nconst deviceId = parts[1];\nconst p = msg.payload;\n\n// Build InfluxDB 2 line protocol point.\n// Tag: device_id. Fields: temperature, humidity, soil_moisture.\nmsg.payload = [\n    {\n        temperature: Number(p.temperature),\n        humidity: Number(p.humidity),\n        soil_moisture: Number(p.soil_moisture)\n    },\n    { device_id: deviceId }\n];\nmsg.measurement = 'sensors';\nreturn msg;",
+        "outputs": 1,
+        "x": 360, "y": 100,
+        "wires": [["out-influx-sensors"]]
+    },
+    {
+        "id": "out-influx-sensors",
+        "type": "influxdb out",
+        "z": "myplantmonitor-tab",
+        "name": "InfluxDB sensors",
+        "influxdb": "influx-config",
+        "org": "${INFLUXDB_ORG}",
+        "bucket": "${INFLUXDB_BUCKET}",
+        "measurement": "sensors",
+        "precision": "ms",
+        "x": 620, "y": 100,
+        "wires": []
+    },
+    {
+        "id": "in-light-state",
+        "type": "mqtt in",
+        "z": "myplantmonitor-tab",
+        "name": "state/+/light",
+        "topic": "state/+/light",
+        "qos": "0",
+        "datatype": "json",
+        "broker": "mosquitto-broker",
+        "x": 140, "y": 220,
+        "wires": [["fn-tag-light"]]
+    },
+    {
+        "id": "fn-tag-light",
+        "type": "function",
+        "z": "myplantmonitor-tab",
+        "name": "shape light state",
+        "func": "const parts = msg.topic.split('/');\nconst deviceId = parts[1];\nmsg.payload = [\n    { on: msg.payload.on ? 1 : 0 },\n    { device_id: deviceId }\n];\nreturn msg;",
+        "outputs": 1,
+        "x": 360, "y": 220,
+        "wires": [["out-influx-light"]]
+    },
+    {
+        "id": "out-influx-light",
+        "type": "influxdb out",
+        "z": "myplantmonitor-tab",
+        "name": "InfluxDB light_state",
+        "influxdb": "influx-config",
+        "org": "${INFLUXDB_ORG}",
+        "bucket": "${INFLUXDB_BUCKET}",
+        "measurement": "light_state",
+        "precision": "ms",
+        "x": 620, "y": 220,
+        "wires": []
+    },
+    {
+        "id": "ui-tab",
+        "type": "ui_tab",
+        "name": "Mi planta",
+        "icon": "spa",
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "ui-group",
+        "type": "ui_group",
+        "name": "Control",
+        "tab": "ui-tab",
+        "order": 1,
+        "disp": true,
+        "width": "6"
+    },
+    {
+        "id": "btn-on",
+        "type": "ui_button",
+        "z": "myplantmonitor-tab",
+        "name": "Encender luz",
+        "group": "ui-group",
+        "label": "💡 Encender luz",
+        "color": "#000",
+        "bgcolor": "#f1c40f",
+        "topic": "cmd/plant-01/light",
+        "payloadType": "json",
+        "payload": "{\"on\":true}",
+        "x": 140, "y": 360,
+        "wires": [["out-cmd"]]
+    },
+    {
+        "id": "btn-off",
+        "type": "ui_button",
+        "z": "myplantmonitor-tab",
+        "name": "Apagar luz",
+        "group": "ui-group",
+        "label": "🌑 Apagar luz",
+        "color": "#fff",
+        "bgcolor": "#34495e",
+        "topic": "cmd/plant-01/light",
+        "payloadType": "json",
+        "payload": "{\"on\":false}",
+        "x": 140, "y": 420,
+        "wires": [["out-cmd"]]
+    },
+    {
+        "id": "out-cmd",
+        "type": "mqtt out",
+        "z": "myplantmonitor-tab",
+        "name": "publish cmd",
+        "topic": "",
+        "qos": "0",
+        "retain": "false",
+        "broker": "mosquitto-broker",
+        "x": 380, "y": 390,
+        "wires": []
+    },
+    {
+        "id": "comment-todo",
+        "type": "comment",
+        "z": "myplantmonitor-tab",
+        "name": "TODO Abby",
+        "info": "Cosas por terminar en la UI:\n\n1. Cambiar el device_id en los botones — ahora apuntan a plant-01;\n   si vas a demo con sim-web, duplica los botones para ese device_id.\n2. Agregar un panel ui_text que muestre el último valor de\n   sensors/<id>/state en lenguaje humano.\n3. (opcional) Botón 'Regar' que publique a cmd/<id>/water.",
+        "x": 620, "y": 360,
+        "wires": []
+    }
+]
