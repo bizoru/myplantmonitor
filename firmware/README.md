@@ -1,58 +1,62 @@
-# firmware — plant-01 (Arduino UNO, Arduino C/C++)
+# firmware — Arduino Uno (C++)
 
-## Hardware (suggested wiring — adjust to your build)
+Arduino sketch for the plant monitor. Reads sensors and controls actuators over USB serial. The `iot/` Flask app bridges serial commands to MQTT.
 
-| Sensor / Output       | Pin    | Notes                                     |
-| --------------------- | ------ | ----------------------------------------- |
-| DHT22 data            | GPIO15 | 10kΩ pull-up to 3V3 on data line          |
-| Soil moisture (ADC)   | GPIO34 | ADC1 channel; capacitive sensors preferred |
-| Light strip / relay   | GPIO5  | drives MOSFET gate or relay coil          |
+## Hardware wiring
 
-3V3 + GND from the Arduino UNO dev board. Soil sensor signal pin → GPIO34.
+| Component | Pin | Notes |
+|---|---|---|
+| Lights relay | D4 | Digital HIGH/LOW |
+| Motor / pump | D3 | PWM — 5V supply, motor runs 1–3V |
+| DHT11 (temp + humidity) | D2 | Data pin |
+| MQ-135 (CO2) | A0 | Analog |
+| Capacitive soil moisture v2.0 | A1 | Analog — calibrate dry/wet constants |
+| BH1750 (lux) | A4 (SDA) / A5 (SCL) | I2C |
 
-## Flash Arduino C/C++
+## Libraries (Arduino IDE / PlatformIO)
 
-1. Download the Arduino IDE from <https://www.arduino.cc/en/software>.
-2. Erase + flash:
+- `BH1750` by Christopher Laws
+- `DHT sensor library` by Adafruit
+- `Wire` (built-in)
 
-   ```bash
-   esptool.py --chip arduino --port /dev/cu.usbserial-XXXX erase_flash
-   esptool.py --chip arduino --port /dev/cu.usbserial-XXXX --baud 460800 \
-     write_flash -z 0x1000 arduino-XXXX.bin
-   ```
+## Serial protocol
 
-3. Verify with `mpremote`:
+**Baud rate:** 9600
 
-   ```bash
-   mpremote connect /dev/cu.usbserial-XXXX repl
-   ```
+All commands are plain text followed by `\n`. The board echoes a confirmation line. `get readings` returns a JSON object.
 
-## Copy the firmware
+| Command | Response |
+|---|---|
+| `lights on` | `Lights on` |
+| `lights off` | `Lights off` |
+| `motor on` | `Motor on` |
+| `motor off` | `Motor off` |
+| `motor level <0-100>` | `Motor level set to <N>` |
+| `get readings` | `{"moisture":N,"co2":N,"lux":N,"temp":N,"humidity":N}` |
 
-```bash
-cp config.example.py config.py
-$EDITOR config.py    # fill in WiFi + MQTT creds
+A value of `-1.0` in the JSON means that sensor failed to read.
 
-mpremote connect /dev/cu.usbserial-XXXX cp boot.py main.py config.py :
-mpremote connect /dev/cu.usbserial-XXXX reset
+## Sensor calibration
+
+**Soil moisture** — the capacitive sensor v2.0 returns raw ADC values. Adjust the constants in `main.cpp` for your unit:
+
+```cpp
+constexpr int MOISTURE_DRY = 520;  // ADC reading in dry air
+constexpr int MOISTURE_WET = 260;  // ADC reading submerged in water
 ```
 
-The board reboots, connects to WiFi, then loops:
+**CO2 (MQ-135)** — `R0` is the sensor resistance in clean air. The default `76.63 kΩ` is a typical value; calibrate yours by reading the raw resistance in clean outdoor air and updating:
 
-- read DHT22 + soil ADC
-- publish to `sensors/plant-01/state` every 60s
-- listen on `cmd/plant-01/light`, drive the GPIO, echo `state/plant-01/light`
+```cpp
+constexpr float R0 = 76.63;
+```
 
-## Debugging
+**Motor PWM** — the motor runs between 1V and 3V on a 5V supply. PWM range maps to duty cycles 51–153 out of 255. Adjust `MOTOR_MIN_V` / `MOTOR_MAX_V` if your motor specs differ.
 
-- `mpremote repl` to see prints from the running firmware.
-- If MQTT connect fails: confirm broker is reachable from the WiFi network
-  (`mqtt://${DOMAIN}:1883` is open publicly), and that the username/password
-  match the `passwd` file on the broker.
-- ADC values are noisy; the firmware does no smoothing. Fine for the demo.
+## Flash
 
-## Calibration tip
+1. Open `main.cpp` in the Arduino IDE (or use PlatformIO).
+2. Select **Board: Arduino Uno**, correct port.
+3. Upload.
 
-Soil sensor raw ADC values vary wildly between makes. Drop the sensor in dry
-air and write down the value (this is your "0%"). Submerge in water — write
-that down too ("100%"). Adjust the formula in `read_sensors()` accordingly.
+The onboard LED blinks every second as a heartbeat.
