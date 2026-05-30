@@ -91,10 +91,10 @@ def _run(serial_mgr):
         if reason_code == 0:
             logger.info("[mqtt_bridge] connected  broker=%s:%d  topic=%s", host, port, TOPIC)
             c.subscribe(f"cmd/{DEVICE_ID}/light")
-            c.subscribe(f"cmd/{DEVICE_ID}/motor")
+            c.subscribe(f"cmd/{DEVICE_ID}/pump")
             # Publish initial OFF state so Grafana has a baseline from the moment the app starts.
             c.publish(f"state/{DEVICE_ID}/light", json.dumps({"on": False}), retain=True)
-            c.publish(f"state/{DEVICE_ID}/motor", json.dumps({"on": False}), retain=True)
+            c.publish(f"state/{DEVICE_ID}/pump", json.dumps({"on": False}), retain=True)
         else:
             logger.warning("[mqtt_bridge] connect failed  rc=%s", reason_code)
 
@@ -110,11 +110,11 @@ def _run(serial_mgr):
                 serial_mgr.send(cmd)
                 c.publish(f"state/{DEVICE_ID}/light", json.dumps({"on": on}), retain=True)
                 logger.info("[mqtt_bridge] light cmd → Arduino: %s", cmd)
-            elif msg.topic == f"cmd/{DEVICE_ID}/motor":
+            elif msg.topic == f"cmd/{DEVICE_ID}/pump":
                 cmd = "motor on" if on else "motor off"
                 serial_mgr.send(cmd)
-                c.publish(f"state/{DEVICE_ID}/motor", json.dumps({"on": on}), retain=True)
-                logger.info("[mqtt_bridge] motor cmd → Arduino: %s", cmd)
+                c.publish(f"state/{DEVICE_ID}/pump", json.dumps({"on": on}), retain=True)
+                logger.info("[mqtt_bridge] pump cmd → Arduino: %s", cmd)
         except Exception as exc:
             logger.warning("[mqtt_bridge] cmd error: %s", exc)
 
