@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plant Monitor</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #f4f6f8; color: #222; padding: 2rem; }
+    h1 { margin-bottom: 1.5rem; font-size: 1.5rem; }
+    h2 { font-size: 1rem; margin-bottom: 0.75rem; color: #444; }
+    .card {
+      background: #fff; border-radius: 8px; padding: 1.25rem 1.5rem;
+      margin-bottom: 1.25rem; box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .btn-row { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+    button {
+      padding: 0.45rem 1.1rem; border: none; border-radius: 5px;
+      cursor: pointer; font-size: 0.9rem; font-weight: 500;
+      background: #3b82f6; color: #fff; transition: background 0.15s;
+    }
+    button:hover { background: #2563eb; }
+    button.danger { background: #ef4444; }
+    button.danger:hover { background: #dc2626; }
+    button.secondary { background: #6b7280; }
+    button.secondary:hover { background: #4b5563; }
+    .status { font-size: 0.8rem; margin-top: 0.5rem; min-height: 1.1em; color: #666; }
+    .status.ok { color: #16a34a; }
+    .status.err { color: #dc2626; }
+    input[type=number] {
+      width: 80px; padding: 0.4rem 0.5rem; border: 1px solid #d1d5db;
+      border-radius: 5px; font-size: 0.9rem;
+    }
+    textarea {
+      width: 100%; height: 150px; font-family: monospace; font-size: 0.8rem;
+      border: 1px solid #d1d5db; border-radius: 5px; padding: 0.5rem;
+      background: #f9fafb; resize: vertical;
+    }
+    #log-box { height: 180px; background: #1e1e1e; color: #d4d4d4; border: none; }
+    .log-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+  </style>
+</head>
+<body>
+  <h1>Plant Monitor</h1>
+
+  <!-- Lights -->
+  <div class="card">
+    <h2>Lights</h2>
+    <div class="btn-row">
+      <button onclick="sendControl('/api/lights', {state:'on'}, 'lights-status')">On</button>
+      <button class="danger" onclick="sendControl('/api/lights', {state:'off'}, 'lights-status')">Off</button>
+    </div>
+    <div class="status" id="lights-status"></div>
+  </div>
+
+  <!-- Motor -->
+  <div class="card">
+    <h2>Motor</h2>
+    <div class="btn-row">
+      <button onclick="sendControl('/api/motor', {state:'on'}, 'motor-status')">On</button>
+      <button class="danger" onclick="sendControl('/api/motor', {state:'off'}, 'motor-status')">Off</button>
+    </div>
+    <div class="status" id="motor-status"></div>
+  </div>
+
+  <!-- Motor level -->
+  <div class="card">
+    <h2>Motor Level</h2>
+    <div class="btn-row">
+      <input type="number" id="motor-level" min="0" max="100" value="50">
+      <button onclick="setMotorLevel()">Set</button>
+    </div>
+    <div class="status" id="level-status"></div>
+  </div>
+
+  <!-- Sensor readings -->
+  <div class="card">
+    <h2>Sensor Readings</h2>
+    <div class="btn-row">
+      <button onclick="getReadings()">Read Sensors</button>
+    </div>
+    <div class="status" id="readings-status"></div>
+    <textarea id="readings-output" readonly placeholder="Readings will appear here…"></textarea>
+  </div>
+
+  <!-- Serial log -->
+  <div class="card">
+    <div class="log-header">
+      <h2>Serial Log</h2>
+      <button class="secondary" onclick="toggleLog()">Show / Hide</button>
+    </div>
+    <div id="log-section" style="display:none">
+      <textarea id="log-box" readonly></textarea>
+    </div>
+  </div>
+
+  <script>
+    function log(msg) {
+      const box = document.getElementById('log-box');
+      const ts = new Date().toLocaleTimeString();
+      box.value += `[${ts}] ${msg}\n`;
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function setStatus(id, text, ok) {
+      const el = document.getElementById(id);
+      el.textContent = text;
+      el.className = 'status ' + (ok ? 'ok' : 'err');
+    }
+
+    async function sendControl(url, body, statusId) {
+      log(`> ${url}  ${JSON.stringify(body)}`);
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (data.ok) {
+          log(`< ${data.echo}`);
+          setStatus(statusId, data.echo, true);
+        } else {
+          log(`! ${data.error}`);
+          setStatus(statusId, data.error, false);
+        }
+      } catch (e) {
+        log(`! ${e.message}`);
+        setStatus(statusId, e.message, false);
+      }
+    }
+
+    async function setMotorLevel() {
+      const level = parseInt(document.getElementById('motor-level').value, 10);
+      if (isNaN(level) || level < 0 || level > 100) {
+        setStatus('level-status', 'Level must be 0–100', false);
+        return;
+      }
+      await sendControl('/api/motor/level', {level}, 'level-status');
+    }
+
+    async function getReadings() {
+      log('> get readings');
+      try {
+        const res = await fetch('/api/readings');
+        const data = await res.json();
+        if (data.ok) {
+          log(`< ${data.echo}`);
+          setStatus('readings-status', 'OK', true);
+          const formatted = Object.entries(data.readings)
+            .map(([k, v]) => `${k}: ${v === -1.0 ? 'N/A' : v}`)
+            .join('\n');
+          document.getElementById('readings-output').value = formatted;
+        } else {
+          log(`! ${data.error}`);
+          setStatus('readings-status', data.error, false);
+        }
+      } catch (e) {
+        log(`! ${e.message}`);
+        setStatus('readings-status', e.message, false);
+      }
+    }
+
+    function toggleLog() {
+      const section = document.getElementById('log-section');
+      section.style.display = section.style.display === 'none' ? 'block' : 'none';
+    }
+  </script>
+</body>
+</html>
